@@ -49,7 +49,7 @@ docker cp srcbolder/. container_id:/dstbolder
 3. 还有一种网络类型是`None`也就是没有网络
 ![[Pasted image 20230314165426.png]]
 
-#### dockerfile
+#### dockerfile 
 
 Dockerfile 指令选项:
 
@@ -85,3 +85,19 @@ LABEL <key>=<value> <key>=<value> <key>=<value> ...
 LABEL org.opencontainers.image.authors="runoob"
 ```
 
+#### 制作镜像
+
+在某些镜像的基础上，制作自己的镜像，最基础的需要需要：
+- 使用 `RUN` ，`ENV` 在 `dockerfile` 中增加自己需要 `docker内系统` 执行的命令，`环境变量` 
+- 并将本地需要投入容器中的文件使用 `COPY` 复制到其中，包括资源文件，配置文件 
+- `FROM` 指定基础镜像
+随后使用如下命令构建新镜像
+
+```shell
+# 在当前目录构建镜像
+docker build .
+# 重命名镜像为 test:latest
+docker build -t test:latest .
+# 或者使用commit提交为新副本
+docker commit -m="描述信息" -a="作者" container_id name:[TAG]
+```
