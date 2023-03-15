@@ -4,6 +4,8 @@ Docker的潜在使用工具，包括了
 - `Docker Desktop` docker的桌面管理程序，图形化的界面管理本地的容器
 - `docker compose` 可以使用`docker-compose.yml`文件一次协调多个Docker容器的配置
 
+---
+
 ### Docker Engine 安装
 
 ```bash
@@ -76,6 +78,8 @@ systemctl restart docker
 docker info
 ```
 
+---
+
 ### Docker Desktop安装
 
 > 如果没有桌面管理需求，不是必须项
@@ -105,6 +109,8 @@ docker compose version
 docker --version
 docker version
 ```
+
+---
 
 ### docker compose安装
 

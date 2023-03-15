@@ -1,10 +1,16 @@
-> 首先，由于`docker daemon`需要绑定到主机的`Unix socket`而不是普通的TCP端口，而`Unix socket`的属主为`root`用户，所以其他用户只有在命令前添加`sudo`选项才能执行相关操作；可以为`docker`增加组，使用组策略为当前用户赋权。
+> 首先，由于`docker daemon`需要绑定到主机的`Unix socket`而不是普通的TCP端口，而`Unix socket`的属主为`root`用户，所以其他用户只有在命令前添加`sudo`选项才能执行相关操作；可以为`docker`增加组，使用组策略为当前用户赋权。也可以直接给sock文件赋权。
 > 
 ```shell
+# 方法一，有可能单客户端生效
 sudo groupadd docker
 sudo usermod -aG docker $USER
 newgrp docker
+# 方法二
+sudo chmod 666 /var/run/docker.sock
+sudo systemctl restart docker
 ```
+
+---
 
 #### docker镜像操作
 
@@ -25,6 +31,8 @@ docker exec -it CONTAINER bash
 docker rm [-f] CONTAINER
 # 删除所有容器
 docker rm -f `docker ps -aq`
+# 删除镜像
+docker image rm [image]
 # 保存镜像相当于快照
 docker save -o NAME CONTAINER
 # 加载保存的镜像
@@ -41,6 +49,8 @@ docker cp srcbolder/. container_id:/dstbolder
 
 都可以使用 `--help` 查看手册
 
+---
+
 #### docker网络
 
 如下图：
@@ -48,6 +58,8 @@ docker cp srcbolder/. container_id:/dstbolder
 2. `Host`模式,如果在启动容器的时候指定使用Host模式，那么这个容器将不会获得一个独立的`network` `namespace`，而是和主机共同使用一个，这个时候容器将不会虚拟出自己的网卡,配置出自己的`ip`，而是使用宿主机上的`ip`和端口，包括`socket`
 3. 还有一种网络类型是`None`也就是没有网络
 ![[Pasted image 20230314165426.png]]
+
+---
 
 #### dockerfile 
 
@@ -85,6 +97,8 @@ LABEL <key>=<value> <key>=<value> <key>=<value> ...
 LABEL org.opencontainers.image.authors="runoob"
 ```
 
+---
+
 #### 制作镜像
 
 在某些镜像的基础上，制作自己的镜像，最基础的需要需要：
@@ -100,4 +114,6 @@ docker build .
 docker build -t test:latest .
 # 或者使用commit提交为新副本
 docker commit -m="描述信息" -a="作者" container_id name:[TAG]
+# 重命名镜像
+docker tag container_id name:[TAG]
 ```
