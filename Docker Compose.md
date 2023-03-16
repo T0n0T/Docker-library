@@ -149,7 +149,8 @@ networks:
 - `hostname` 设置主机`name`
 - `ports` 使用 `HOST:CONTAINER` 格式或者只是指定容器的端口，宿主机会随机映射端口
 - `dns` 指定服务器
-- `net` 设置网络模式
+- `network_mode` 设置网络模式
+- `network` 指定自定义网络
 - `extends` 基于其他配置文件，可以形成嵌套
 - `links` 链接到其它服务中的容器。使用服务名称（同时作为别名），或者“服务名称:服务别名”
 
