@@ -35,6 +35,7 @@ docker rm -f `docker ps -aq`
 docker image rm [image]
 # 保存镜像相当于快照
 docker save -o NAME CONTAINER
+docker save -o 打包名字.tar CONTAINER_ID
 # 加载保存的镜像
 docker load NAME
 
@@ -116,4 +117,14 @@ docker build -t test:latest .
 docker commit -m="描述信息" -a="作者" container_id name:[TAG]
 # 重命名镜像
 docker tag container_id name:[TAG]
+```
+
+#### 深度清理
+
+
+```shell
+# 查看docker的空间占用情况
+docker system df 
+# 深度清理docker占用
+docker system prune
 ```

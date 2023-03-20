@@ -15,17 +15,16 @@
 - + `up`  
 ```shell
   -d # 在后台运行服务容器
-  –no-color # 不使用颜色来区分不同的服务的控制输出
-  –no-deps # 不启动服务所链接的容器
-  –force-recreate # 强制重新创建容器，不能与–no-recreate同时使用
-  –no-recreate # 如果容器已经存在，则不重新创建，不能与–force-recreate同时使用
-  –no-build # 不自动构建缺失的服务镜像
-  –build # 在启动容器前构建服务镜像
-  –abort-on-container-exit # 停止所有容器，如果任何一个容器被停止，不能与-d同时使用
+  -–no-color # 不使用颜色来区分不同的服务的控制输出
+  -–no-deps # 不启动服务所链接的容器
+  -–force-recreate # 强制重新创建容器，不能与–no-recreate同时使用
+  -–no-recreate # 如果容器已经存在，则不重新创建，不能与–force-recreate同时使用
+  -–no-build # 不自动构建缺失的服务镜像
+  -–build # 在启动容器前构建服务镜像
+  -–abort-on-container-exit # 停止所有容器，如果任何一个容器被停止，不能与-d同时使用
   -t, –timeout TIMEOUT # 停止容器时候的超时（默认为10秒）
-  –remove-orphans # 删除服务中没有在compose文件中定义的容器
-  –scale SERVICE=NUM # 设置服务运行容器的个数，将覆盖在compose中通过scale指定的参数
-
+  -–remove-orphans # 删除服务中没有在compose文件中定义的容器
+  -–scale SERVICE=NUM # 设置服务运行容器的个数，将覆盖在compose中通过scale指定的参数
 ```
 
 - +`down`
@@ -64,7 +63,7 @@ docker-compose port [options] SERVICE PRIVATE_PORT # 显示某个容器端口所
    –index=index，# 如果同意服务存在多个容器，指定命令对象容器的序号（默认为1）
 ```
 
-- + `exec`
+- + `exec` / `run` 可复用 `up`
 ```shell
 docker-compose exec [options] SERVICE COMMAND [ARGS...]
   -d 分离模式，后台运行命令。
@@ -72,8 +71,8 @@ docker-compose exec [options] SERVICE COMMAND [ARGS...]
   –user USER 指定运行的用户。
   -T 禁用分配TTY，默认docker-compose exec分配TTY。
   –index=index，当一个服务拥有多个容器时，可通过该参数登陆到该服务下的任何服务，例如：docker-compose exec –index=1 web /bin/bash ，web服务中包含多个容器
+  --rm # 在服务结束后退出
 ```
-
 
 ---
 
