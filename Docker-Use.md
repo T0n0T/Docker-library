@@ -38,7 +38,8 @@ docker save -o NAME CONTAINER
 docker save -o 打包名字.tar CONTAINER_ID
 # 加载保存的镜像
 docker load NAME
-
+# 查看镜像信息
+docker inspect [OPTIONS] NAME|ID [NAME|ID...]
 # 复制文件
 docker cp filename CONTAINER:/filename
 docker cp CONTAINER:/filename filename 
