@@ -136,7 +136,7 @@ networks:
 - `depends_on` 确保该容器依赖的前置条件，如另一个数据库容器已经打开
 - `volumes` 使用 `HOST:CONTAINER` 格式挂载宿主机文件，可以使用 `HOST:CONTAINER:ro` 限定为只读
 - `volumes_from` 从另一个容器或服务处挂载数据
-- `entrypoint` 指定接入点，可以覆盖 `dockerfile` 中的定义
+- `entrypoint` 指定接入点，可以覆盖 `dockerfile` 中的定义，同时清除`dockerfile`中的`CMD`
 - `env_file` 设置环境变量的配置文件
 - `environment` 在文件中指定环境变量，会覆盖 `env_file`
 - `privileged` 使容器内`root`拥有宿主机`root`的权利
