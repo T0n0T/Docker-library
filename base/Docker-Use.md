@@ -63,6 +63,75 @@ docker cp srcbolder/. container_id:/dstbolder
 
 ---
 
+#### docker volumes
+
+有三种基础模式：volumes，bind，tmpfs
+
+
+---
+
+#### docker drivers
+
+有三种基础模式：volumes，bind，tmpfs
+- volumes
+- bind 即绑定装载，bind mount，<font color="#da73ff">容器目录本身如果有内容，建议不要使用bind</font> ，会被清空。现在已经被volumes全面替代
+- tmpfs 可以避免数据永久存储在任何位置，并通过避免写入容器的可写层来提高容器的性能
+
+具体的volumes：
+顶级卷词条下的条目可以为空，在这种情况下，会使用引擎配置的默认驱动程序（在大多数情况下，这是本地驱动程序）
+
+1. **机器间共享数据**  
+
+当构建高可用应用程序，你需要配置多个相同的服务访问相同文件。  
+
+![](https://docs.docker.com/storage/images/volumes-shared-storage.svg)
+
+有几种方法可以达到这种效果。一种是在你的应用中添加对云存储文件的访问，如 Amazon S3。另一种是使用支持外服存储驱动（NFS，  Amazon S3 ）的volume。
+Volume驱动允许你在应用中抽象下层的存储系统。例如，如果你的服务使用NFS驱动volume，你可以使用不同的驱动更新服务，就像存储在云中的数据，不需要修改应用逻辑。  
+
+2. **使用volume驱动** 
+
+当你使用docker volume create创建一个volume，或者当你启动一个带有没创建volume的容器，你可以指定volume驱动。下面例子使用 vieux/sshfs volume驱动 ，首先创建一个独立的volume，然后启动一个创建新volume的容器。  
+**初始化设置**  
+这个例子假设你有两个节点，第一个是Docker主机而且可以连接到第二个的ssh.  
+
+在Docker主机中安装vieux/sshfs插件：
+```shell
+docker plugin install  --grant-all-permissions  vieux/sshfs
+```
+**使用volume驱动创建volume**  
+
+这个样例指定一个SSH密码，但是如果两个主机共享keys配置，你可以省略密码。每个volume驱动可以没有或者更多配置选项，可以使用-o标识。 
+```shell
+docker volume create  --driver  vieux/sshfs  \
+ -o   sshcmd = test @node2:/home/test  \
+ -o   password = testpassword  \
+  sshvolume
+  # test @node2:/home/test 为远程主机挂载点 
+``` 
+相似的`docker-compose.yml`中
+```shell
+volumes:
+  example:
+    driver_opts:
+      type: "nfs"
+      o: "addr=10.40.0.199,nolock,soft,rw"
+      device: ":/docker/example"
+```
+
+**启动一个带有使用volume驱动创建volume的容器**  
+
+这个样例指定一个SSH密码，但是如果两个主机共享keys配置，你可以省略密码。每个volume驱动可以没有或者更多配置选项。如果volume驱动要穿可选参数，你必须使用—mount。
+```shell
+docker run  -d   \
+ --name  sshfs-container  \
+ --volume-driver  vieux/sshfs  \
+ --mount   src = sshvolume,target = /app,volume-opt = sshcmd = test @node2:/home/test,volume-opt = password = testpassword  \
+  nginx:latest
+```
+
+---
+
 #### dockerfile 
 
 Dockerfile 指令选项:

@@ -135,7 +135,7 @@ networks:
 - `container_name` <项目名称><服务名称><序号>自定义项目名称、服务名称
 - `depends_on` 确保该容器依赖的前置条件，如另一个数据库容器已经打开
 - `volumes` 使用 `HOST:CONTAINER` 格式挂载宿主机文件，可以使用 `HOST:CONTAINER:ro` 限定为只读
-- `volumes_from` 从另一个容器或服务处挂载数据
+- `volumes_from` 从另一个容器或服务处挂载数据，现在可以通过命名顶级volumes替代
 - `entrypoint` 指定接入点，可以覆盖 `dockerfile` 中的定义，同时清除`dockerfile`中的`CMD`
 - `env_file` 设置环境变量的配置文件
 - `environment` 在文件中指定环境变量，会覆盖 `env_file`
@@ -143,6 +143,22 @@ networks:
 - `cap_add` 增加容器内核能力，这通常可以给容器又有宿主机的socket等实体外设操作能力
 - `cap_drop` 去掉某种内核能力
 - `devices` 使用 `HOST:CONTAINER` 格式映射宿主机设备
+
+> 关于`volumes`长定义：
+- `type`：可以使 `volume`, `bind`, `tmpfs` 以及 `npipe`
+- `source`：装载的源、主机上用于绑定装载的路径，或顶层卷中定义的卷的名称。不适用于tmpfs装载。
+- `target`：卷挂载在容器中的路径  
+- `read_only`: 将音量设置为只读的标志  
+- `bind`：配​​置其他绑定选项  
+	- `propagation`：绑定所使用的传播模式  
+	- `create_host_path`：如果主机上的源路径上没有任何内容，请创建目录。如果路径上有任何内容，请不要执行任何操作。出于向后兼容性与 docker-compose 传统版的简短语法自动隐含此选项。  
+	- `selinux`：SELinux 重新标记选项 z（共享）或 Z（私有）  
+- `volume`：配置其他容量选项  
+	- `nocopy`：当创建卷时禁用来自容器的数据复制的标志  
+- `tmpfs`：配置其他 tmpfs 选项  
+	- `size`：以字节为单位（数字或字节单位）的 tmpfs 挂载大小  
+	- `mode`: 作为八进制数字的 Unix 权限位的 tmpfs 挂载的文件模式  
+- `consistency`: 挂载的一致性要求。可用值因平台而异
 
 ##### <font color="#da73ff">network</font> ：
 - `hostname` 设置主机`name`
@@ -153,7 +169,24 @@ networks:
 - `extends` 基于其他配置文件，可以形成嵌套
 - `links` 链接到其它服务中的容器。使用服务名称（同时作为别名），或者“服务名称:服务别名”
 
-```c
+##### <font color="#da73ff">voluems</font>：
+顶级关键字下的volumes
+
+**共享卷**
+除了在`service`的下级`volumes`中，不同容器挂载同一个宿主机目录达到镜像间共享文件外，可以通过指定顶级关键字的volumes。
+
+```shell
+volumes:  
+  database:  
+    driver_opts:   # 更多选项可以查看Linux的Mount命令，与Mount相似  
+      type: ext4   # 文件类型，必需  
+      o: bind  
+      device: <path>  # 绝对路径或相对路径
+```
+
+
+#### 实例：
+```shell
 services:
 	web:
 		container_name: xxxxx
@@ -165,15 +198,13 @@ services:
 		 - "8080:8080"
 		 - "127.0.0.1:8888:8888"
 		net: "bridge"
-		//net: "none"
-		//net: "host"
+		# net: "none"
+		# net: "host"
 		volumes:  
-		  - /var/lib/mysql  // 只是指定一个路径，Docker 会自动在创建一个数据卷（这个路径是容器内部的）  
-		  - /opt/data:/var/lib/mysql // 使用绝对路径挂载数据卷  
-		  - ./cache:/tmp/cache // 以 Compose 配置文件为中心的相对路径作为数据卷挂载到容器
-		volumes_from:
-			- service_name    
-			- container_name
+		  - /var/lib/mysql  # 只是指定一个路径，Docker 会自动在创建一个数据卷（这个路径是容器内部的）  
+		  - /opt/data:/var/lib/mysql # 使用绝对路径挂载数据卷  
+		  - ./cache:/tmp/cache # 以 Compose 配置文件为中心的相对路径作为数据卷挂载到容器
+		  - database:/database/data
 		dns：
 			- 8.8.8.8   
 			- 9.9.9.9
@@ -185,20 +216,19 @@ services:
 		cap_add:
 		    - ALL
 		devices:
-		    - "/dev/ttyUSB1:/dev/ttyUSB0"
-
-	depends_on:
-	    - mysql
-	    - redis
+		    - /dev/ttyUSB1:/dev/ttyUSB0
+		depends_on:
+		    - mysql
+		    - redis
 
 	redis:
-	    image: "redis:latest"
+	    image: redis:latest
 	    extends:
-	        file: xxxxx.yml //extends不会继承links和volumes_from中定义的容器和数据卷资源
-	        service: xxxxx  //在extend的配置中，尽量只定义共享的镜像和环境变量
+	        file: xxxxx.yml # extends不会继承links和volumes_from中定义的容器和数据卷资源
+	        service: xxxxx  # 在extend的配置中，尽量只定义共享的镜像和环境变量
 
     mysql:
-        network_mode: "bridge"
+        network_mode: bridge
         environment:
             MYSQL_ROOT_PASSWORD: "111111"
             MYSQL_USER: 'test'
@@ -206,15 +236,23 @@ services:
         image: "mysql:latest"
         restart: always
         volumes:
-            - "./db:/var/lib/mysql"              //自定义的配置文件的载入
-            - "./conf/my.cnf:/etc/my.cnf"
-            - "./init:/docker-entrypoint-initdb.d/"
+            - ./db:/var/lib/mysql           # 自定义的配置文件的载入
+            - ./conf/my.cnf:/etc/my.cnf
+            - ./init:/docker-entrypoint-initdb.d/
+            - database:/database/data
         ports:
-            - "33060:3306"
+            - "3306:3306"
 
 	web2：
 		links:	
 		    - mysql	
 		    - mysql:database	
 		    - redis
+
+volumes:  
+  database:  
+    driver_opts:   # 更多选项可以查看Linux的Mount命令，与Mount相似  
+      type: ext4   # 文件类型，必需  
+      o: bind  
+      device: <path>  # 绝对路径或相对路径
 ```
