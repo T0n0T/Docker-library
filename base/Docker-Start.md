@@ -68,6 +68,10 @@ vim /etc/docker/daemon.json
     "insecure-registries":[
        "docker.mirrors.ustc.edu.cn",
          "registry.docker-cn.com"
+    ] ，
+    "dns":[
+	    "8.8.8.8",
+	    "114.114.114.114"
     ]
 }
 ```

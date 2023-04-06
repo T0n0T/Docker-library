@@ -78,7 +78,7 @@ docker buildx create --append --name crossbuilder xxx
 
 构建使用实例：
 ```
-docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 -t <username>/<image>:latest .
+docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 -t <username>/<image>:latest . --load
 ```
 
 ### docker buildx imagetools
