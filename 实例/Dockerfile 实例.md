@@ -12,7 +12,7 @@ FROM alpine:latest AS first
 COPY --from=first 第一阶段作为来源 第二阶段的目标文件 # --from 指定名字会获取名字处的层
 ```
 
-#### 精简版镜像执行可执行文件
+#### alpine执行可执行文件
 
 精简版`alpine`镜像一般使用的命令行是`sh`，但是`alpine`使用的`c`库使用`mini`版的`musl libc`与其他`Linux`发行版使用的`gnu libc`不一样。虽说号称兼容，但也只是部分兼容了，实际应用中，可能会因为这个库问题导致诸如一下的问题：
 
@@ -38,4 +38,24 @@ ln -s /lib/libc.musl-armv7.so.1 /lib/ld-linux-armhf.so.3
 - 通过补充`libc`库
 ```shell
 apk add libc6-compat
+```
+
+#### alpine下载失败
+> 很大可能是由于docker daemon的dns服务器配置问题，需要使用`114.114.114.114`国内服务器来连接，否则apk连接不到镜像站
+
+```shell
+tiger@tiger-linux:~/Desktop/code/web/gva-docker$ cat /etc/docker/daemon.json
+{
+    "registry-mirrors":[
+         "http://docker.mirrors.ustc.edu.cn",
+         "http://hub-mirror.c.163.com",
+         "http://registry.docker-cn.com"
+    ] ,
+    "insecure-registries":[
+       "docker.mirrors.ustc.edu.cn",
+         "registry.docker-cn.com"
+    ] ,
+    "dns":["8.8.8.8","114.114.114.114"]
+}
+
 ```
